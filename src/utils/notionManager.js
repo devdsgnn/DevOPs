@@ -40,6 +40,7 @@ class NotionManager {
         servers: [],
         socialLinksDbId: null,
         siteInspirationsDbId: null,
+        platformAccountsDbId: null,
       };
 
       // Parse the configuration from Notion
@@ -61,6 +62,9 @@ class NotionManager {
         } else if (configName === 'DB - SiteInspirations' || configName.includes('SiteInspirations') || configName === 'SITE_INSPIRATIONS_DB_ID') {
           config.siteInspirationsDbId = configValue;
           console.log('📊 Found Site Inspirations DB ID:', configValue);
+        } else if (configName === 'DB - PlatformAccounts' || configName.includes('PlatformAccounts') || configName === 'PLATFORM_ACCOUNTS_DB_ID') {
+          config.platformAccountsDbId = configValue;
+          console.log('📊 Found Platform Accounts DB ID:', configValue);
         } else if (configName === 'Discord Token' || configName === 'DISCORD_TOKEN') {
           config.discordToken = configValue;
         } else if (configName === 'Discord Client ID' || configName === 'DISCORD_CLIENT_ID') {
@@ -256,11 +260,189 @@ class NotionManager {
   }
 
   /**
+   * Get the Platform Accounts Database ID from config
+   */
+  async getPlatformAccountsDbId() {
+    const config = await this.getConfig();
+    return config.platformAccountsDbId;
+  }
+
+  /**
+   * Add a platform account with OAuth credentials
+   */
+  async addPlatformAccount(platform, accountName, username, accessToken, refreshToken = null, platformUserId = null) {
+    try {
+      const dbId = await this.getPlatformAccountsDbId();
+
+      if (!dbId) {
+        throw new Error('Platform Accounts database ID not configured in Notion');
+      }
+
+      const properties = {
+        'Name': {
+          title: [{ text: { content: accountName } }]
+        },
+        'Platform': {
+          select: { name: platform }
+        },
+        'Username': {
+          rich_text: [{ text: { content: username || '' } }]
+        },
+        'Access Token': {
+          rich_text: [{ text: { content: accessToken } }]
+        }
+      };
+
+      // Add refresh token if provided
+      if (refreshToken) {
+        properties['Refresh Token'] = {
+          rich_text: [{ text: { content: refreshToken } }]
+        };
+      }
+
+      // Add platform user ID if provided (for LinkedIn person ID or Instagram Business Account ID)
+      if (platformUserId) {
+        properties['Platform User ID'] = {
+          rich_text: [{ text: { content: platformUserId } }]
+        };
+      }
+
+      const response = await this.notion.pages.create({
+        parent: { database_id: dbId },
+        properties
+      });
+
+      console.log(`✅ ${platform} account saved to Notion:`, accountName);
+      return response;
+    } catch (error) {
+      console.error('Error adding platform account to Notion:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get all platform accounts for a specific platform
+   */
+  async getPlatformAccounts(platform, serverId = null) {
+    try {
+      const dbId = await this.getPlatformAccountsDbId();
+
+      if (!dbId) {
+        return []; // Return empty array if database not configured
+      }
+
+      const filters = [
+        {
+          property: 'Platform',
+          select: { equals: platform }
+        }
+      ];
+
+      const response = await this.notion.databases.query({
+        database_id: dbId,
+        filter: {
+          and: filters
+        }
+      });
+
+      const accounts = response.results.map(page => ({
+        id: page.id,
+        name: page.properties.Name?.title?.[0]?.plain_text || 'Unnamed Account',
+        platform: page.properties.Platform?.select?.name,
+        username: page.properties.Username?.rich_text?.[0]?.plain_text,
+        access_token: page.properties['Access Token']?.rich_text?.[0]?.plain_text,
+        refresh_token: page.properties['Refresh Token']?.rich_text?.[0]?.plain_text,
+        platform_user_id: page.properties['Platform User ID']?.rich_text?.[0]?.plain_text,
+        // Twitter OAuth 1.0a fields
+        api_key: page.properties['API Key']?.rich_text?.[0]?.plain_text,
+        api_secret: page.properties['API Secret']?.rich_text?.[0]?.plain_text,
+        access_token_secret: page.properties['Access Token Secret']?.rich_text?.[0]?.plain_text
+      }));
+
+      return accounts;
+    } catch (error) {
+      console.error('Error fetching platform accounts from Notion:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Update platform account tokens (for token refresh)
+   */
+  async updatePlatformAccountTokens(accountId, accessToken, refreshToken = null) {
+    try {
+      const properties = {
+        'Access Token': {
+          rich_text: [{ text: { content: accessToken } }]
+        }
+      };
+
+      if (refreshToken) {
+        properties['Refresh Token'] = {
+          rich_text: [{ text: { content: refreshToken } }]
+        };
+      }
+
+      await this.notion.pages.update({
+        page_id: accountId,
+        properties
+      });
+
+      console.log('✅ Platform account tokens updated');
+    } catch (error) {
+      console.error('Error updating platform account tokens:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Clear the configuration cache (useful for forcing a refresh)
    */
   clearCache() {
     this.cache.config = null;
     this.cache.lastFetch = null;
+  }
+
+  /**
+   * Get post-related configuration (draft channel, publish channel, server ID)
+   */
+  async getPostConfig() {
+    try {
+      const response = await this.notion.databases.query({
+        database_id: this.mainDatabaseId,
+      });
+
+      const config = {
+        draftChannelId: null,
+        publishChannelId: null,
+        serverId: null
+      };
+
+      // Parse the configuration from Notion
+      for (const page of response.results) {
+        const props = page.properties;
+        const configName = props.Name?.title?.[0]?.plain_text || '';
+        const configValue = props.Value?.rich_text?.[0]?.plain_text ||
+          props.Value?.url ||
+          props.Value?.title?.[0]?.plain_text;
+
+        if (configName === 'Draft Channel ID' || configName === 'POST_DRAFT_CHANNEL_ID') {
+          config.draftChannelId = configValue;
+          console.log('📝 Found Draft Channel ID:', configValue);
+        } else if (configName === 'Publish Channel ID' || configName === 'POST_PUBLISH_CHANNEL_ID') {
+          config.publishChannelId = configValue;
+          console.log('📢 Found Publish Channel ID:', configValue);
+        } else if (configName === 'Post Server ID' || configName === 'POST_SERVER_ID') {
+          config.serverId = configValue;
+          console.log('🖥️ Found Server ID:', configValue);
+        }
+      }
+
+      return config;
+    } catch (error) {
+      console.error('Error fetching post config from Notion:', error);
+      throw error;
+    }
   }
 }
 

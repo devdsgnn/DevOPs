@@ -93,11 +93,20 @@ function createLinksEmbed(platformName, links, startIndex) {
         'Instagram': '📸'
     };
 
+    const platformColors = {
+        'X': '#000000',          // Black
+        'YouTube': '#FF0000',    // Red
+        'Dribbble': '#EA4C89',   // Pink
+        'Instagram': '#C13584',  // Purple
+        'Framer': '#0099FF'      // Cyan (default)
+    };
+
     const emoji = platformEmojis[platformName] || '🔗';
+    const color = platformColors[platformName] || '#5865F2'; // Default Discord blurple
     const title = `${emoji} ${platformName} Links`;
 
     const embed = new EmbedBuilder()
-        .setColor('#5865F2')
+        .setColor(color)
         .setTitle(title)
         .setTimestamp();
 
