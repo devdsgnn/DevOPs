@@ -288,20 +288,26 @@ class PlatformPoster {
     /**
      * Post to Dribbble
      * @param {Object} account - Account credentials with access_token
-     * @param {Object} content - Post content { title, description, tags, imageUrl }
+     * @param {Object} content - Post content { title, text, tags, imageBuffer, imageMimeType }
      */
     async postToDribbble(account, content) {
         try {
-            // Download and prepare image
-            const imageResponse = await fetch(content.imageUrl);
-            const imageBuffer = await imageResponse.buffer();
+            // Dribbble requires: title, image, and optionally description & tags
+            if (!content.imageBuffer) {
+                throw new Error('Dribbble requires an image');
+            }
+
+            if (!content.title) {
+                throw new Error('Dribbble requires a title');
+            }
 
             // Create form data
             const formData = new FormData();
             formData.append('title', content.title);
 
-            if (content.description) {
-                formData.append('description', content.description);
+            // Use text as description
+            if (content.text) {
+                formData.append('description', content.text);
             }
 
             if (content.tags) {
@@ -310,9 +316,19 @@ class PlatformPoster {
                 formData.append('tags', tags);
             }
 
-            formData.append('image', imageBuffer, { filename: 'shot.jpg' });
+            // Append image buffer
+            formData.append('image', content.imageBuffer, {
+                filename: 'shot.jpg',
+                contentType: content.imageMimeType || 'image/jpeg'
+            });
 
             // Post to Dribbble
+            console.log('📤 Posting to Dribbble API...');
+            console.log('Title:', content.title);
+            console.log('Description:', content.text);
+            console.log('Tags:', content.tags);
+            console.log('Image size:', content.imageBuffer?.length, 'bytes');
+
             const response = await fetch('https://api.dribbble.com/v2/shots', {
                 method: 'POST',
                 headers: {
@@ -321,10 +337,24 @@ class PlatformPoster {
                 body: formData
             });
 
-            const result = await response.json();
+            console.log('Response status:', response.status, response.statusText);
+
+            // Get response text first
+            const responseText = await response.text();
+            console.log('Response body:', responseText);
+
+            // Try to parse as JSON
+            let result;
+            try {
+                result = JSON.parse(responseText);
+            } catch (e) {
+                console.error('Failed to parse response as JSON:', e);
+                throw new Error(`Dribbble API returned invalid response (${response.status}): ${responseText}`);
+            }
 
             if (!response.ok) {
-                throw new Error(result.message || 'Failed to post to Dribbble');
+                console.error('Dribbble API Error:', result);
+                throw new Error(result.message || result.error || JSON.stringify(result));
             }
 
             return {

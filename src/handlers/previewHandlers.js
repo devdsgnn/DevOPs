@@ -63,7 +63,7 @@ export async function handlePublishPreview(interaction) {
         const dataString = Buffer.from(dataBase64, 'base64').toString('utf-8');
         const previewData = JSON.parse(dataString);
 
-        const { platform, accountId, accountName, text, imageUrl } = previewData;
+        const { platform, accountId, accountName, text, imageUrl, title, tags } = previewData;
 
         // Get platform color
         const platformColor = PLATFORM_COLORS[platform] || 0x5865F2;
@@ -102,6 +102,14 @@ export async function handlePublishPreview(interaction) {
         const content = {
             text: text
         };
+
+        // Add title and tags for Dribbble
+        if (title) {
+            content.title = title;
+        }
+        if (tags) {
+            content.tags = tags;
+        }
 
         // Download image if it exists (from Discord CDN URL - works for posting)
         if (imageUrl) {
@@ -192,15 +200,63 @@ export async function handlePublishPreview(interaction) {
                 embeds: [errorEmbed]
             });
 
+            // Re-enable the buttons on the preview message so user can retry
+            try {
+                const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = await import('discord.js');
+                const retryButtons = new ActionRowBuilder()
+                    .addComponents(
+                        new ButtonBuilder()
+                            .setCustomId(`publish_preview_${previewMessage.id}`)
+                            .setLabel('Retry Publish')
+                            .setStyle(ButtonStyle.Success)
+                            .setEmoji('🔄'),
+                        new ButtonBuilder()
+                            .setCustomId(`delete_preview_${previewMessage.id}`)
+                            .setLabel('Delete')
+                            .setStyle(ButtonStyle.Danger)
+                            .setEmoji('🗑️')
+                    );
+
+                await previewMessage.edit({ components: [retryButtons] });
+            } catch (btnError) {
+                console.error('Failed to re-enable buttons:', btnError);
+            }
+
             await interaction.editReply({
-                content: `❌ Failed to publish: ${result.error}`
+                content: `❌ Failed to publish: ${result.error}\n\n💡 **Tip:** Click "Retry Publish" in the preview to try again.`
             });
         }
 
     } catch (error) {
         console.error('Error in handlePublishPreview:', error);
+
+        // Try to re-enable buttons even on unexpected errors
+        try {
+            const messageId = interaction.customId.replace('publish_preview_', '');
+            const previewMessage = await interaction.channel.messages.fetch(messageId);
+
+            const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = await import('discord.js');
+            const retryButtons = new ActionRowBuilder()
+                .addComponents(
+                    new ButtonBuilder()
+                        .setCustomId(`publish_preview_${previewMessage.id}`)
+                        .setLabel('Retry Publish')
+                        .setStyle(ButtonStyle.Success)
+                        .setEmoji('🔄'),
+                    new ButtonBuilder()
+                        .setCustomId(`delete_preview_${previewMessage.id}`)
+                        .setLabel('Delete')
+                        .setStyle(ButtonStyle.Danger)
+                        .setEmoji('🗑️')
+                );
+
+            await previewMessage.edit({ components: [retryButtons] });
+        } catch (btnError) {
+            console.error('Failed to re-enable buttons after error:', btnError);
+        }
+
         await interaction.editReply({
-            content: `❌ An error occurred: ${error.message}`
+            content: `❌ An error occurred: ${error.message}\n\n💡 **Tip:** Click "Retry Publish" in the preview to try again.`
         });
     }
 }

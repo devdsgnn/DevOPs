@@ -113,9 +113,47 @@ export async function execute(interaction) {
         const selectedAccount = accounts[accountNum - 1];
         await accountMsg.delete().catch(() => { });
 
-        // Ask for text content
+        // For Dribbble, ask for title first
+        let postTitle = null;
+        if (platform === 'Dribbble') {
+            const titlePrompt = await interaction.channel.send({
+                content: `📝 **Enter your Dribbble shot title:**\n\n${interaction.user}, type the title below.`
+            });
+
+            const titleCollected = await interaction.channel.awaitMessages({
+                filter,
+                max: 1,
+                time: 300000, // 5 minutes
+                errors: ['time']
+            }).catch(() => null);
+
+            if (!titleCollected || titleCollected.size === 0) {
+                await titlePrompt.delete().catch(() => { });
+                await interaction.followUp({
+                    content: '❌ Timeout. Please try again.',
+                    ephemeral: true
+                });
+                return;
+            }
+
+            let titleMsg = titleCollected.first();
+            try {
+                titleMsg = await titleMsg.fetch();
+            } catch (e) {
+                console.log('Failed to fetch title message:', e.message);
+            }
+
+            postTitle = titleMsg.content;
+            console.log('📝 Collected title:', postTitle);
+
+            await titleMsg.delete().catch(() => { });
+            await titlePrompt.delete().catch(() => { });
+        }
+
+        // Ask for text content (description for Dribbble)
+        const textLabel = platform === 'Dribbble' ? 'description (optional)' : 'post text';
         const textPrompt = await interaction.channel.send({
-            content: `✍️ **Enter your ${platform} post text:**\n\n${interaction.user}, type your message below.`
+            content: `✍️ **Enter your ${platform} ${textLabel}:**\n\n${interaction.user}, type your message below.${platform === 'Dribbble' ? ' (or type "skip")' : ''}`
         });
 
         const textCollected = await interaction.channel.awaitMessages({
@@ -144,13 +182,57 @@ export async function execute(interaction) {
             console.log('Failed to fetch text message:', e.message);
         }
 
-        const postText = textMsg.content;
+        let postText = textMsg.content;
+
+        // For Dribbble, description is optional
+        if (platform === 'Dribbble' && postText.toLowerCase() === 'skip') {
+            postText = '';
+        }
+
         console.log('📝 Collected text:', postText);
 
         await textMsg.delete().catch(() => { });
         await textPrompt.delete().catch(() => { });
 
         const content = { text: postText };
+
+        // Add title for Dribbble
+        if (postTitle) {
+            content.title = postTitle;
+        }
+
+        // Ask for tags (Dribbble only)
+        if (platform === 'Dribbble') {
+            const tagsPrompt = await interaction.channel.send({
+                content: `🏷️ **Enter tags (optional):**\n\n${interaction.user}, enter comma-separated tags (e.g., "ui, design, figma").\nMax 12 tags. Type "skip" to skip.`
+            });
+
+            const tagsCollected = await interaction.channel.awaitMessages({
+                filter,
+                max: 1,
+                time: 60000, // 1 minute
+                errors: ['time']
+            }).catch(() => null);
+
+            if (tagsCollected && tagsCollected.size > 0) {
+                let tagsMsg = tagsCollected.first();
+                try {
+                    tagsMsg = await tagsMsg.fetch();
+                } catch (e) {
+                    console.log('Failed to fetch tags message:', e.message);
+                }
+
+                const tagsText = tagsMsg.content;
+                if (tagsText.toLowerCase() !== 'skip') {
+                    content.tags = tagsText;
+                    console.log('🏷️ Collected tags:', tagsText);
+                }
+
+                await tagsMsg.delete().catch(() => { });
+            }
+
+            await tagsPrompt.delete().catch(() => { });
+        }
 
         // Check if platform supports/requires images
         const requiresImage = platform === 'Instagram' || platform === 'Dribbble';
@@ -260,10 +342,28 @@ export async function execute(interaction) {
 
         const previewEmbed = new EmbedBuilder()
             .setAuthor({ name: `${selectedAccount.name} (${formattedUsername})` })
-            .setDescription(postText)
-            .setColor(platform === 'X' ? 0x1DA1F2 : 0x5865F2)
+            .setColor(platform === 'X' ? 0x1DA1F2 : platform === 'LinkedIn' ? 0x0077B5 : platform === 'Dribbble' ? 0xEA4C89 : 0x5865F2)
             .setFooter({ text: `${platform} • Preview` })
             .setTimestamp();
+
+        // For Dribbble, show title prominently
+        if (content.title) {
+            previewEmbed.setTitle(content.title);
+        }
+
+        // Set description (text)
+        if (postText) {
+            previewEmbed.setDescription(postText);
+        }
+
+        // For Dribbble, show tags if provided
+        if (content.tags) {
+            previewEmbed.addFields({
+                name: '🏷️ Tags',
+                value: content.tags,
+                inline: false
+            });
+        }
 
         // If there's an image, show it in the preview
         let imageAttachment = null;
@@ -275,7 +375,6 @@ export async function execute(interaction) {
         }
 
         // Store all the data we need in a compact format for the button
-        // We'll store: platform, accountId, text, imageMessageId (if image exists)
         const previewData = {
             platform,
             accountId: selectedAccount.id,
@@ -283,6 +382,14 @@ export async function execute(interaction) {
             text: postText,
             imageUrl: null // Will be set after we send the message with image
         };
+
+        // Add title and tags for Dribbble
+        if (content.title) {
+            previewData.title = content.title;
+        }
+        if (content.tags) {
+            previewData.tags = content.tags;
+        }
 
         // Create Publish/Delete buttons
         const buttons = new ActionRowBuilder()
