@@ -1,6 +1,10 @@
 import fetch from 'node-fetch';
 
-const accessToken = 'AQWNPo7k4gEVEMyv3eTtxv2pvVF5FNTbtlaSOfbCAMHukD7KCtITgmiGdUg2ai_G8hlPJpbddFWaeO4RpixE3YmI8DE7lKhIuEdYO_-TbDDrrmcSMz_gssC_GNBgvssQ2HY6yB2pcf-jn2OZhQc8hZ4X3sTezND5jvnG5FYTBRcEsbQJUuZvpDVcIs260tFLcEBKYurtFxhyG6vZtcek069e-TF1OfRciXZJWJ1z8wp-1ojtHDsisTAFJzbviOJcj79gLzfqj2a8Jt7lnmbpD8208nm3xczXznpaomb7w5n3nYLeTT1_DUdigiIjXlGYSbnwm4ALUqRFKhwbR3mgFN7sdP-vxg';
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+const accessToken = process.env.LINKEDIN_ACCESS_TOKEN || 'YOUR_ACCESS_TOKEN_HERE';
 
 async function getLinkedInPersonId() {
     try {
@@ -13,7 +17,7 @@ async function getLinkedInPersonId() {
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'
             },
-            body: `token=${accessToken}&client_id=86fzo0cgmre1ai&client_secret=WPL_AP1.3QyuHCZsatlDwUOQ.S2/MDg==`
+            body: `token=${accessToken}&client_id=${process.env.LINKEDIN_CLIENT_ID || 'YOUR_CLIENT_ID'}&client_secret=${process.env.LINKEDIN_CLIENT_SECRET || 'YOUR_CLIENT_SECRET'}`
         });
 
         const introspectData = await introspectResponse.json();

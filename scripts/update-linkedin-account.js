@@ -47,19 +47,19 @@ async function updateLinkedInAccount() {
                         rich_text: [{ text: { content: 'devdsgn' } }]
                     },
                     'Access Token': {
-                        rich_text: [{ text: { content: 'AQW_WG_DfaQkVM7Bdg9J0A91xXg5nZn6sbXsgHlq0WjWgZsIIriey5JW2Vd_-PZsUxR_7FZPnTYAkf_IUWY9jtEjODEuQOafqz_IK-jZRbwfE0kElB0xqWMTaey0nC6LiNrQDAY33B-vJPXxmn3GZcsNgR5hoXGGuhfonfK9bqcyj5swOn-BF1FF0Tlnz2KQ_eyrctuigSlHVFevVxOoBL5iAVoM60UKySGdVa1d6q5bmPANiMFZ2fmMhxwDS1QY6osMDsoiKebe7JZtl1XYRISHNkFCtSjzcvcJO2kZ1k0x3ADst9ctM2oZJNzBDpdBXp3iN6H6qh-oyIxJjA7YrPSfkLtFHw' } }]
+                        rich_text: [{ text: { content: process.env.LINKEDIN_ACCESS_TOKEN || 'YOUR_ACCESS_TOKEN_HERE' } }]
                     },
                     'Refresh Token': {
-                        rich_text: [{ text: { content: 'AQXvetQELapiBQyWmcn2-gA6wSLJbTptxlgtPO90QZ7xJiBvQDrt3fnCMMmkXhEjHx3PxU0ZRjKgkyGuFiPpdQcaOqVXo-Zr1x1V2N6mDiKYYoppkkkck72NEalGi3h83jDu4Rxu_d-YaZQ9PkM3WWFnv3BG8-b_0A2a8OYEAHwMpcQr_OKw7r5m73UJGF9UGvCejtC-6dbxAscXwu8R0_yjiWFGeru4L-PlE1vew9X8MdMqHZqI1i3m-4nGeAY5t1ZH_DkcMW8siTgPgZwU5ZHVk6r6IfM2Ekb7WM4p6BSPycjJrI9mqkkJR1vc26tMrq3VVGfMt3BmCO14WYaxo3QJjjyYag' } }]
+                        rich_text: [{ text: { content: process.env.LINKEDIN_REFRESH_TOKEN || 'YOUR_REFRESH_TOKEN_HERE' } }]
                     },
                     'Platform User ID': {
-                        rich_text: [{ text: { content: 'PKn7VAkIXA' } }]
+                        rich_text: [{ text: { content: process.env.LINKEDIN_PERSON_ID || 'YOUR_PERSON_ID_HERE' } }]
                     },
                     'API Key': {
-                        rich_text: [{ text: { content: '86fzo0cgmre1ai' } }]
+                        rich_text: [{ text: { content: process.env.LINKEDIN_CLIENT_ID || 'YOUR_CLIENT_ID_HERE' } }]
                     },
                     'API Secret': {
-                        rich_text: [{ text: { content: 'WPL_AP1.3QyuHCZsatlDwUOQ.S2/MDg==' } }]
+                        rich_text: [{ text: { content: process.env.LINKEDIN_CLIENT_SECRET || 'YOUR_CLIENT_SECRET_HERE' } }]
                     }
                 }
             });
@@ -76,13 +76,13 @@ async function updateLinkedInAccount() {
                         title: [{ text: { content: 'Devarsh LinkedIn' } }]
                     },
                     'Access Token': {
-                        rich_text: [{ text: { content: 'AQW_WG_DfaQkVM7Bdg9J0A91xXg5nZn6sbXsgHlq0WjWgZsIIriey5JW2Vd_-PZsUxR_7FZPnTYAkf_IUWY9jtEjODEuQOafqz_IK-jZRbwfE0kElB0xqWMTaey0nC6LiNrQDAY33B-vJPXxmn3GZcsNgR5hoXGGuhfonfK9bqcyj5swOn-BF1FF0Tlnz2KQ_eyrctuigSlHVFevVxOoBL5iAVoM60UKySGdVa1d6q5bmPANiMFZ2fmMhxwDS1QY6osMDsoiKebe7JZtl1XYRISHNkFCtSjzcvcJO2kZ1k0x3ADst9ctM2oZJNzBDpdBXp3iN6H6qh-oyIxJjA7YrPSfkLtFHw' } }]
+                        rich_text: [{ text: { content: process.env.LINKEDIN_ACCESS_TOKEN || 'YOUR_ACCESS_TOKEN_HERE' } }]
                     },
                     'Refresh Token': {
-                        rich_text: [{ text: { content: 'AQXvetQELapiBQyWmcn2-gA6wSLJbTptxlgtPO90QZ7xJiBvQDrt3fnCMMmkXhEjHx3PxU0ZRjKgkyGuFiPpdQcaOqVXo-Zr1x1V2N6mDiKYYoppkkkck72NEalGi3h83jDu4Rxu_d-YaZQ9PkM3WWFnv3BG8-b_0A2a8OYEAHwMpcQr_OKw7r5m73UJGF9UGvCejtC-6dbxAscXwu8R0_yjiWFGeru4L-PlE1vew9X8MdMqHZqI1i3m-4nGeAY5t1ZH_DkcMW8siTgPgZwU5ZHVk6r6IfM2Ekb7WM4p6BSPycjJrI9mqkkJR1vc26tMrq3VVGfMt3BmCO14WYaxo3QJjjyYag' } }]
+                        rich_text: [{ text: { content: process.env.LINKEDIN_REFRESH_TOKEN || 'YOUR_REFRESH_TOKEN_HERE' } }]
                     },
                     'Platform User ID': {
-                        rich_text: [{ text: { content: 'PKn7VAkIXA' } }]
+                        rich_text: [{ text: { content: process.env.LINKEDIN_PERSON_ID || 'YOUR_PERSON_ID_HERE' } }]
                     }
                 }
             });
