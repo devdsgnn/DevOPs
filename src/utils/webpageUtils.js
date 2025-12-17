@@ -56,12 +56,12 @@ export async function extractMetadata(url) {
 }
 
 /**
- * Take a screenshot of a webpage
+ * Take a screenshot of a webpage with progressive waiting strategy
  * @param {string} url - The URL to screenshot
- * @param {number} waitTime - Time to wait for page load in milliseconds (default: 10000)
- * @returns {Promise<Buffer>} - Screenshot as a buffer
+ * @param {number} waitTime - Deprecated parameter (kept for backward compatibility)
+ * @returns {Promise<Buffer|null>} - Screenshot as a buffer, or null if all attempts fail
  */
-export async function takeScreenshot(url, waitTime = 10000) {
+export async function takeScreenshot(url, waitTime = null) {
     let browser = null;
 
     try {
@@ -87,15 +87,39 @@ export async function takeScreenshot(url, waitTime = 10000) {
             deviceScaleFactor: 1
         });
 
-        // Navigate to the URL
-        await page.goto(url, {
-            waitUntil: 'networkidle0',
-            timeout: 30000
+        // Start loading the page (load once, don't reload)
+        console.log(`🌐 Loading page: ${url}`);
+        const navigationPromise = page.goto(url, {
+            waitUntil: 'domcontentloaded',
+            timeout: 120000 // Max 2 minutes for initial load
         });
 
-        // Wait for the specified time to ensure everything loads
-        console.log(`⏳ Waiting ${waitTime}ms for page to fully load...`);
-        await new Promise(resolve => setTimeout(resolve, waitTime));
+        await navigationPromise;
+        console.log(`✅ Page DOM loaded`);
+
+        // Progressive waiting strategy - wait for networkidle0 with increasing timeouts
+        const waitTimes = [10000, 20000, 30000, 40000, 50000, 60000, 120000];
+        let fullyLoaded = false;
+
+        for (const waitMs of waitTimes) {
+            try {
+                console.log(`⏳ Waiting up to ${waitMs}ms for page to be fully loaded (networkidle0)...`);
+                await page.waitForNetworkIdle({
+                    timeout: waitMs,
+                    idleTime: 500 // Consider idle if no network activity for 500ms
+                });
+                console.log(`✅ Page fully loaded after waiting ${waitMs}ms`);
+                fullyLoaded = true;
+                break;
+            } catch (error) {
+                console.log(`⚠️ Not fully loaded after ${waitMs}ms, trying next wait time...`);
+                continue;
+            }
+        }
+
+        if (!fullyLoaded) {
+            console.log(`⚠️ Page never reached networkidle0, taking screenshot anyway`);
+        }
 
         // Take screenshot
         const screenshot = await page.screenshot({
@@ -114,7 +138,8 @@ export async function takeScreenshot(url, waitTime = 10000) {
             await browser.close();
         }
 
-        throw error;
+        // Return null instead of throwing to allow the command to continue
+        return null;
     }
 }
 

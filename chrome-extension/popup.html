@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Site Inspiration</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>Site Inspiration</h1>
+            <p class="subtitle">Save to Discord & Notion</p>
+        </div>
+
+        <!-- Page Info -->
+        <div class="page-info">
+            <div class="info-row">
+                <span class="label">Page</span>
+                <span class="value" id="pageTitle">Loading...</span>
+            </div>
+            <div class="info-row">
+                <span class="label">URL</span>
+                <span class="value url" id="pageUrl">Loading...</span>
+            </div>
+        </div>
+
+        <!-- Channel Selector -->
+        <div class="channel-selector-container">
+            <div class="section-title">Save to channels</div>
+
+            <div id="selectedChannels" class="selected-channels">
+                <!-- Selected tags will appear here -->
+                <div class="placeholder-text">No channels selected</div>
+            </div>
+
+            <input type="text" id="channelSearch" placeholder="Search channels..." class="channel-search"
+                autocomplete="off">
+
+            <div id="channelList" class="channel-list">
+                <!-- Channels will be populated here -->
+                <div class="loading-text">Loading channels...</div>
+            </div>
+        </div>
+
+        <!-- Capture Button -->
+        <button id="captureBtn" class="capture-btn">
+            Capture & Save to Selected
+        </button>
+
+        <!-- Progress -->
+        <div id="progress" class="progress">
+            <div class="progress-bar"></div>
+        </div>
+
+        <!-- Status -->
+        <div id="status" class="status"></div>
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+
+</html>

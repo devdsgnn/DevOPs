@@ -174,11 +174,15 @@ export async function handleSiteCommand(interaction, url) {
             return;
         }
 
-        // Step 3: Take screenshot (with 20 second load time)
+        // Step 3: Take screenshot (with progressive waiting strategy)
         let screenshot = null;
         try {
-            screenshot = await takeScreenshot(url, 20000);
-            console.log(`⏱️  Screenshot captured in ${Date.now() - startTime}ms`);
+            screenshot = await takeScreenshot(url);
+            if (screenshot) {
+                console.log(`⏱️  Screenshot captured in ${Date.now() - startTime}ms`);
+            } else {
+                console.log(`⚠️  Screenshot skipped (page failed to load) after ${Date.now() - startTime}ms`);
+            }
         } catch (screenshotError) {
             console.error('Failed to take screenshot:', screenshotError.message);
             // Continue even if screenshot fails
