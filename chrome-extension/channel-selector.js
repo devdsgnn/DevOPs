@@ -1,11 +1,11 @@
-// Channel selector modal styles and logic
+// Channel selector modal styles and logic - Dark Framer Style
 console.log('📢 Channel Selector Script Loaded!');
 
 let channelModal = null;
 let selectedChannels = [];
 let availableChannels = [];
 
-// Create channel selector modal
+// Create channel selector modal - Dark theme matching main popup
 function createChannelModal() {
     const modal = document.createElement('div');
     modal.id = 'channel-selector-modal';
@@ -14,42 +14,72 @@ function createChannelModal() {
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        background: white;
-        border-radius: 16px;
-        padding: 20px;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        background: #000000;
+        border-radius: 20px;
+        padding: 18px;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.05);
         z-index: 2147483647;
-        width: 360px;
+        width: 340px;
         max-height: 500px;
         display: none;
-        font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif;
+        font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
+        overflow: hidden;
+        position: relative;
     `;
 
     modal.innerHTML = `
-        <div style="margin-bottom: 16px;">
-            <h3 style="margin: 0 0 8px 0; font-size: 18px; font-weight: 600; color: #1d1d1f;">Save to channels</h3>
-            <p style="margin: 0; font-size: 13px; color: #86868b;">Select one or more channels</p>
+        <div id="top-progress-bar" style="
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 2px;
+            background: #0a84ff;
+            display: none;
+            animation: progressAnim 1.5s ease-in-out infinite;
+        "></div>
+        
+        <!-- Header with X button -->
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; padding: 0 4px;">
+            <h3 style="margin: 0; font-size: 14px; font-weight: 500; color: #ffffff; display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 13px;">📸</span> Save to channels
+            </h3>
+            <button id="cancel-save" style="
+                width: 24px;
+                height: 24px;
+                border-radius: 6px;
+                border: none;
+                background: transparent;
+                color: #666666;
+                font-size: 18px;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: color 0.15s ease;
+                padding: 0;
+            ">×</button>
         </div>
         
-        <div id="selected-channels" style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; min-height: 32px;"></div>
-        
-        <div style="position: relative; margin-bottom: 16px;">
+        <!-- Search Input -->
+        <div style="position: relative; margin-bottom: 12px;">
             <input 
                 type="text" 
                 id="channel-search" 
                 placeholder="Search channels..."
                 style="
                     width: 100%;
-                    padding: 12px;
-                    border-radius: 8px;
-                    border: 1px solid transparent;
-                    background: #f5f5f7;
-                    color: #1d1d1f;
+                    padding: 14px 18px;
+                    border-radius: 14px;
+                    border: none;
+                    background: #1a1a1a;
+                    color: #ffffff;
                     font-size: 14px;
                     outline: none;
                     box-sizing: border-box;
-                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                    transition: all 0.2s ease;
+                    font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+                    transition: background 0.15s ease;
                 "
             />
             
@@ -58,51 +88,61 @@ function createChannelModal() {
                 top: 100%;
                 left: 0;
                 width: 100%;
-                max-height: 200px;
+                max-height: 120px;
                 overflow-y: auto;
-                background: white;
-                border: 1px solid #e5e5e5;
-                border-radius: 8px;
-                box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+                background: #1a1a1a;
+                border-radius: 14px;
+                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
                 z-index: 100;
-                margin-top: 8px;
+                margin-top: 6px;
                 display: none;
             "></div>
         </div>
         
-        <div style="display: flex; gap: 8px;">
-            <button id="cancel-save" style="
-                flex: 1;
-                padding: 10px;
-                background: #f5f5f7;
-                color: #1d1d1f;
-                border: none;
-                border-radius: 8px;
-                font-size: 14px;
-                font-weight: 500;
-                cursor: pointer;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-            ">Cancel</button>
-            <button id="confirm-save" style="
-                flex: 1;
-                padding: 10px;
-                background: #007AFF;
-                color: white;
-                border: none;
-                border-radius: 8px;
-                font-size: 14px;
-                font-weight: 500;
-                cursor: pointer;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-            ">Save</button>
-        </div>
+        <!-- Selected Channels (below search) -->
+        <div id="selected-channels" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; min-height: 28px;"></div>
+        
+        <!-- Save Button -->
+        <button id="confirm-save" style="
+            width: 100%;
+            padding: 14px;
+            background: #ffffff;
+            color: #000000;
+            border: none;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.15s ease;
+        ">Save</button>
     `;
 
     document.body.appendChild(modal);
+
+    // Add CSS animation for progress bar
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes progressAnim {
+            0% { width: 0%; }
+            50% { width: 70%; }
+            100% { width: 100%; }
+        }
+    `;
+    document.head.appendChild(style);
+
+    // Add hover effects
+    const cancelBtn = modal.querySelector('#cancel-save');
+    const saveBtn = modal.querySelector('#confirm-save');
+
+    cancelBtn.addEventListener('mouseenter', () => cancelBtn.style.color = '#ffffff');
+    cancelBtn.addEventListener('mouseleave', () => cancelBtn.style.color = '#666666');
+
+    saveBtn.addEventListener('mouseenter', () => { if (!saveBtn.disabled) saveBtn.style.background = '#e5e5e5'; });
+    saveBtn.addEventListener('mouseleave', () => { if (!saveBtn.disabled) saveBtn.style.background = '#ffffff'; });
+
     return modal;
 }
 
@@ -136,7 +176,7 @@ async function fetchChannels() {
         return availableChannels;
     } catch (error) {
         console.error('Error fetching channels:', error);
-        availableChannels = []; // Ensure it's an array
+        availableChannels = [];
         return [];
     }
 }
@@ -146,18 +186,17 @@ function renderChannelList(searchTerm = '') {
     const channelList = document.getElementById('channel-list');
     if (!channelList) return;
 
-    // Show list
     channelList.style.display = 'block';
 
     const filtered = availableChannels.filter(ch =>
         ch.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
-        !selectedChannels.find(sc => sc.id === ch.id)
+        !selectedChannels.find(sc => String(sc.id) === String(ch.id))
     );
 
     if (filtered.length === 0) {
         channelList.innerHTML = `
-            <div style="padding: 16px; text-align: center; color: #86868b; font-size: 13px;">
-                No channels found
+            <div style="padding: 12px; text-align: center; color: #555555; font-size: 12px;">
+                ${availableChannels.length === 0 ? 'No channels loaded' : 'No matching channels'}
             </div>
         `;
         return;
@@ -169,63 +208,74 @@ function renderChannelList(searchTerm = '') {
             data-channel-id="${channel.id}"
             data-channel-name="${channel.name}"
             style="
-                padding: 12px;
+                padding: 11px 16px;
                 cursor: pointer;
-                border-bottom: 1px solid #f5f5f7;
-                font-size: 14px;
-                color: #1d1d1f;
-                transition: background 0.15s ease;
-                background: white;
+                font-size: 13px;
+                color: #ffffff;
+                transition: background 0.1s ease;
+                background: transparent;
             "
         >
             ${channel.name}
         </div>
     `).join('');
 
-    // Add event listeners (CSP safe)
+    // Add event listeners
     channelList.querySelectorAll('.channel-option').forEach(option => {
-        // Click handler
         option.addEventListener('click', () => {
             const channelId = option.dataset.channelId;
             const channelName = option.dataset.channelName;
             addChannel({ id: channelId, name: channelName });
-            channelList.style.display = 'none'; // Hide after selection
+            channelList.style.display = 'none';
         });
 
-        // Hover effects
         option.addEventListener('mouseenter', () => {
-            option.style.background = '#f5f5f7';
+            option.style.background = '#2a2a2a';
         });
         option.addEventListener('mouseleave', () => {
-            option.style.background = 'white';
+            option.style.background = 'transparent';
         });
     });
 }
 
 // Add channel to selected
 function addChannel(channel) {
-    if (selectedChannels.find(ch => ch.id === channel.id)) return;
+    if (selectedChannels.find(ch => String(ch.id) === String(channel.id))) return;
 
     selectedChannels.push(channel);
     renderSelectedChannels();
+    updateSaveButton();
     renderChannelList(document.getElementById('channel-search').value);
 }
 
 // Remove channel from selected
 function removeChannel(channelId) {
-    selectedChannels = selectedChannels.filter(ch => ch.id !== channelId);
+    selectedChannels = selectedChannels.filter(ch => String(ch.id) !== String(channelId));
     renderSelectedChannels();
+    updateSaveButton();
     renderChannelList(document.getElementById('channel-search').value);
 }
 
-// Render selected channels as tags
+// Update save button text
+function updateSaveButton() {
+    const saveBtn = document.getElementById('confirm-save');
+    if (!saveBtn) return;
+
+    if (selectedChannels.length === 0) {
+        saveBtn.textContent = 'Save';
+    } else {
+        saveBtn.textContent = `Save (${selectedChannels.length})`;
+    }
+}
+
+// Render selected channels as tags - Dark theme with white 20%
 function renderSelectedChannels() {
     const container = document.getElementById('selected-channels');
     if (!container) return;
 
     if (selectedChannels.length === 0) {
         container.innerHTML = `
-            <div style="color: #86868b; font-size: 13px; padding: 6px 0;">
+            <div style="color: #555555; font-size: 12px; padding: 4px 0;">
                 No channels selected
             </div>
         `;
@@ -237,10 +287,10 @@ function renderSelectedChannels() {
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            background: #007AFF;
+            background: rgba(255, 255, 255, 0.2);
             color: white;
-            padding: 6px 10px;
-            border-radius: 16px;
+            padding: 6px 12px;
+            border-radius: 50px;
             font-size: 12px;
             font-weight: 500;
         ">
@@ -250,9 +300,9 @@ function renderSelectedChannels() {
                 data-channel-id="${channel.id}"
                 style="
                     cursor: pointer;
-                    font-size: 14px;
+                    font-size: 13px;
                     line-height: 1;
-                    opacity: 0.8;
+                    opacity: 0.7;
                 "
             >×</span>
         </div>
@@ -263,6 +313,8 @@ function renderSelectedChannels() {
         btn.addEventListener('click', () => {
             removeChannel(btn.dataset.channelId);
         });
+        btn.addEventListener('mouseenter', () => btn.style.opacity = '1');
+        btn.addEventListener('mouseleave', () => btn.style.opacity = '0.7');
     });
 }
 
@@ -272,7 +324,6 @@ async function showChannelModal() {
         channelModal = createChannelModal();
         createBackdrop();
 
-        // Add click outside listener for dropdown
         document.addEventListener('click', (e) => {
             const searchInput = document.getElementById('channel-search');
             const channelList = document.getElementById('channel-list');
@@ -297,9 +348,18 @@ async function showChannelModal() {
     // Hide dropdown initially
     document.getElementById('channel-list').style.display = 'none';
 
+    // Hide progress bar
+    document.getElementById('top-progress-bar').style.display = 'none';
+
+    // Reset save button
+    const saveBtn = document.getElementById('confirm-save');
+    saveBtn.textContent = 'Save';
+    saveBtn.style.background = '#ffffff';
+    saveBtn.style.color = '#000000';
+    saveBtn.disabled = false;
+
     // Render
     renderSelectedChannels();
-    // renderChannelList(); // Don't show list immediately
 
     // Focus search
     document.getElementById('channel-search').focus();
@@ -308,7 +368,7 @@ async function showChannelModal() {
     const searchInput = document.getElementById('channel-search');
     searchInput.value = '';
     searchInput.oninput = (e) => renderChannelList(e.target.value);
-    searchInput.onfocus = (e) => renderChannelList(e.target.value); // Show on focus
+    searchInput.onfocus = (e) => renderChannelList(e.target.value);
 
     // Setup button listeners
     document.getElementById('cancel-save').onclick = hideChannelModal;
@@ -318,23 +378,62 @@ async function showChannelModal() {
     document.getElementById('channel-modal-backdrop').onclick = hideChannelModal;
 }
 
-// Confirm save - will be overridden by caller
+// Confirm save callback
 let confirmSaveCallback = null;
 let cancelSaveCallback = null;
 
-function confirmSave() {
+async function confirmSave() {
+    const saveBtn = document.getElementById('confirm-save');
+    const progressBar = document.getElementById('top-progress-bar');
+
     if (selectedChannels.length === 0) {
-        alert('Please select at least one channel');
+        // Flash the button red briefly
+        saveBtn.style.background = '#ff453a';
+        saveBtn.style.color = '#ffffff';
+        saveBtn.textContent = 'Select channel';
+        setTimeout(() => {
+            saveBtn.style.background = '#ffffff';
+            saveBtn.style.color = '#000000';
+            saveBtn.textContent = 'Save';
+        }, 1500);
         return;
     }
 
-    if (confirmSaveCallback) {
-        confirmSaveCallback(selectedChannels);
-    }
+    // Show progress
+    saveBtn.disabled = true;
+    progressBar.style.display = 'block';
+    saveBtn.textContent = 'Saving...';
+    saveBtn.style.background = '#333333';
+    saveBtn.style.color = '#666666';
 
-    // Don't call hide here, let the saving process handle it or do it after
-    // Actually, we usually hide after confirming.
-    hideChannelModal();
+    if (confirmSaveCallback) {
+        try {
+            await confirmSaveCallback(selectedChannels);
+
+            // Success state
+            progressBar.style.display = 'none';
+            saveBtn.textContent = '✓ Saved';
+            saveBtn.style.background = '#34C759';
+            saveBtn.style.color = '#ffffff';
+
+            setTimeout(() => {
+                hideChannelModal();
+            }, 1500);
+        } catch (error) {
+            // Error state
+            progressBar.style.display = 'none';
+            saveBtn.textContent = '✕ Error';
+            saveBtn.style.background = '#ff453a';
+            saveBtn.style.color = '#ffffff';
+
+            setTimeout(() => {
+                saveBtn.disabled = false;
+                saveBtn.textContent = `Save (${selectedChannels.length})`;
+                saveBtn.style.background = '#ffffff';
+                saveBtn.style.color = '#000000';
+            }, 2000);
+        }
+    }
 }
 
 // Hide channel modal
@@ -342,13 +441,6 @@ function hideChannelModal() {
     if (channelModal) {
         channelModal.style.display = 'none';
         document.getElementById('channel-modal-backdrop').style.display = 'none';
-
-        // Trigger cancel callback if it exists (and we're not saving)
-        // Note: Logic here is a bit tricky. We might want to clear the callback 
-        // after confirm so "hide" doesn't trigger cancel. 
-        // But for "Saving..." button reset, it's fine if "Saved" state handles itself.
-        // Let's just assume if this is called explicitly by user action (cancel button/backdrop), 
-        // we want to reset.
 
         if (cancelSaveCallback) {
             cancelSaveCallback();

@@ -1,19 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
+<div id="siteInspirationModal" class="modal-overlay" style="display: none;">
+    <div class="modal-container">
+        <!-- Progress bar at top -->
+        <div id="topProgress" class="top-progress" style="display: none;"></div>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Site Inspiration</title>
-    <link rel="stylesheet" href="popup.css">
-</head>
-
-<body>
-    <div class="container">
         <!-- Header -->
-        <div class="header">
+        <div class="modal-header">
             <h1>Site Inspiration</h1>
-            <p class="subtitle">Save to Discord & Notion</p>
+            <button class="close-btn" id="closeModal">×</button>
         </div>
 
         <!-- Page Info -->
@@ -37,20 +30,18 @@
                     autocomplete="off">
 
                 <div id="channelList" class="channel-list">
-                    <!-- Channels will be populated here -->
                     <div class="loading-text">Loading channels...</div>
                 </div>
             </div>
 
             <div id="selectedChannels" class="selected-channels">
-                <!-- Selected tags will appear here -->
                 <div class="placeholder-text">No channels selected</div>
             </div>
         </div>
 
         <!-- Capture Button -->
         <button id="captureBtn" class="capture-btn">
-            Capture & Save to Selected
+            Save
         </button>
 
         <!-- Progress -->
@@ -61,8 +52,4 @@
         <!-- Status -->
         <div id="status" class="status"></div>
     </div>
-
-    <script src="popup.js"></script>
-</body>
-
-</html>
+</div>

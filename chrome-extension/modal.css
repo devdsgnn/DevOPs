@@ -1,0 +1,394 @@
+/* Modal Overlay - Framer Pure Black Style */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999999;
+    animation: fadeIn 0.2s ease;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* Modal Container - Pure Black, More Radius */
+.modal-container {
+    width: 340px;
+    background: #000000;
+    border-radius: 20px;
+    padding: 18px;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    animation: slideUp 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Progress bar at top of popup */
+.top-progress {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0%;
+    height: 2px;
+    background: #0a84ff;
+    animation: topProgress 1.5s ease-in-out infinite;
+}
+
+@keyframes topProgress {
+    0% {
+        width: 0%;
+    }
+
+    50% {
+        width: 70%;
+    }
+
+    100% {
+        width: 100%;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Header */
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    padding: 0 4px;
+}
+
+.modal-header h1 {
+    font-size: 14px;
+    font-weight: 500;
+    color: #ffffff;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.modal-header h1::before {
+    content: '⚡';
+    font-size: 13px;
+}
+
+.close-btn {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    color: #666666;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.15s ease;
+    padding: 0;
+}
+
+.close-btn:hover {
+    color: #ffffff;
+}
+
+/* Page Info */
+.page-info {
+    background: transparent;
+    margin-bottom: 16px;
+    padding: 0 4px;
+}
+
+.info-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+}
+
+.label {
+    font-size: 13px;
+    color: #999999;
+    font-weight: 400;
+}
+
+.value {
+    font-size: 13px;
+    color: #ffffff;
+    font-weight: 400;
+    text-align: right;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.value.url {
+    color: #666666;
+    font-size: 12px;
+}
+
+/* Channel Selector */
+.channel-selector-container {
+    margin-bottom: 16px;
+}
+
+.search-wrapper {
+    position: relative;
+}
+
+.section-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: #ffffff;
+    margin-bottom: 12px;
+    padding: 0 4px;
+}
+
+/* Search Input - Bigger, More Radius */
+.channel-search {
+    width: 100%;
+    padding: 14px 18px;
+    border-radius: 14px;
+    border: none;
+    background: #1a1a1a;
+    color: #ffffff;
+    font-size: 14px;
+    outline: none;
+    transition: background 0.15s ease;
+}
+
+.channel-search::placeholder {
+    color: #555555;
+}
+
+.channel-search:focus {
+    background: #222222;
+}
+
+/* Selected Channels */
+.selected-channels {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+    min-height: 28px;
+}
+
+.placeholder-text {
+    color: #555555;
+    font-size: 12px;
+}
+
+/* Tags - White 20-30% */
+.channel-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 50px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.channel-tag:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.remove-channel {
+    cursor: pointer;
+    font-size: 13px;
+    opacity: 0.7;
+}
+
+.remove-channel:hover {
+    opacity: 1;
+}
+
+/* Channel Dropdown - More Radius */
+.channel-list {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    max-height: 120px;
+    overflow-y: auto;
+    background: #1a1a1a;
+    border-radius: 14px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    z-index: 1000;
+    margin-top: 6px;
+    display: none;
+}
+
+.channel-list.active {
+    display: block;
+    animation: dropdownSlide 0.12s ease;
+}
+
+@keyframes dropdownSlide {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Scrollbar */
+.channel-list::-webkit-scrollbar {
+    width: 3px;
+}
+
+.channel-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.channel-list::-webkit-scrollbar-thumb {
+    background: #333333;
+    border-radius: 3px;
+}
+
+.channel-option {
+    padding: 11px 16px;
+    cursor: pointer;
+    font-size: 13px;
+    color: #ffffff;
+    transition: background 0.1s ease;
+}
+
+.channel-option:hover {
+    background: #2a2a2a;
+}
+
+.loading-text {
+    padding: 12px;
+    text-align: center;
+    color: #555555;
+    font-size: 12px;
+}
+
+/* Capture Button - White, Fully Rounded, Centered Text */
+.capture-btn {
+    width: 100%;
+    background: #ffffff;
+    color: #000000;
+    border: none;
+    border-radius: 50px;
+    padding: 14px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.capture-btn:hover {
+    background: #e5e5e5;
+}
+
+.capture-btn:active {
+    transform: scale(0.98);
+}
+
+.capture-btn:disabled {
+    background: #333333;
+    color: #666666;
+    cursor: not-allowed;
+}
+
+/* Progress */
+.progress {
+    height: 2px;
+    background: #1a1a1a;
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 10px;
+    display: none;
+}
+
+.progress-bar {
+    height: 100%;
+    background: #ffffff;
+    width: 0%;
+    animation: progress 1.5s ease-in-out infinite;
+}
+
+@keyframes progress {
+    0% {
+        width: 0%;
+    }
+
+    50% {
+        width: 70%;
+    }
+
+    100% {
+        width: 100%;
+    }
+}
+
+/* Status */
+.status {
+    text-align: center;
+    font-size: 12px;
+    padding: 10px 14px;
+    border-radius: 50px;
+    display: none;
+    font-weight: 500;
+}
+
+.status.show {
+    display: block;
+}
+
+.status.info {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+}
+
+.status.success {
+    background: #30d15820;
+    color: #30d158;
+}
+
+.status.error {
+    background: #ff453a20;
+    color: #ff453a;
+}
